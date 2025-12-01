@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Blender教材 ログイン</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #ffffff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-width: 320px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      text-align: center;
+    }
+    p {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 0 0 16px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      outline: none;
+    }
+    input[type="password"]:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px #bfdbfe;
+    }
+    button {
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .error {
+      color: #b91c1c;
+      font-size: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Blender教材 ログイン</h1>
+  <p>購入者様限定ページ<br>パスワードを入力してください。</p>
+
+  <label for="pw">パスワード</label>
+  <input type="password" id="pw" autocomplete="off" placeholder="パスワードを入力">
+
+  <button id="login-btn">ログイン</button>
+  <div id="error" class="error">パスワードが違います。</div>
+</div>
+
+<script>
+  // ★ここでパスワードを設定（購入者に伝えるパスワード）
+  const CORRECT_PASSWORD = "Blender2025!";  // ←ここを好きなパスワードに変更
+
+  function tryLogin() {
+    const input = document.getElementById("pw").value;
+    const error = document.getElementById("error");
+
+    if (input === CORRECT_PASSWORD) {
+      // Notionエクスポートのトップページへ遷移
+      window.location.href = "notion/はじめに（Blenderの設定） 28de771c7c8680438eddf7e1be4ff81c.html";
+    } else {
+      error.style.display = "block";
+    }
+  }
+
+  document.getElementById("login-btn").addEventListener("click", tryLogin);
+
+  // Enterキーでログイン可能に
+  document.getElementById("pw").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      tryLogin();
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -115,7 +115,19 @@
     }
   });
 </script>
+<script>
+// すべての折りたたみ(トグル)を閉じる
+document.addEventListener("DOMContentLoaded", () => {
+  // Notion のトグル要素を探索
+  const toggles = document.querySelectorAll("details");
+
+  toggles.forEach(t => {
+    t.removeAttribute("open"); // 開いた状態を解除
+  });
+});
+</script>
 
 </body>
 </html>
+
 

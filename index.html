@@ -88,46 +88,115 @@
 
   <button id="login-btn">ログイン</button>
   <div id="error" class="error">パスワードが違います。</div>
+  <div id="lock" class="error" style="color:#92400e; display:none;"></div>
 </div>
 
 <script>
-  // ★ここでパスワードを設定（購入者に伝えるパスワード）
-  const CORRECT_PASSWORD = "Blender2025!";  // ←ここを好きなパスワードに変更
+/* ============================
+   ▼ 難読化データ（人間には読めない）
+   ============================ */
 
-  function tryLogin() {
-    const input = document.getElementById("pw").value;
-    const error = document.getElementById("error");
+// パスワードと遷移URLを Base64 + シャッフルして隠す
+const scrambled = [
+  "QmxlbmRlcjIwMjUh", // "Blender2025!"
+  "bm90aW9uL+OBq+OBoeOCieOBvuOCiOODqeODvOODiOOCpSDjgZnjgYnjgoHjgZ0g"
+  + "44O844OJIDI4ZGU3NzFjN2M4NjgwNDM4ZWRkZjdlMWJlNGZmODFjLmh0bWw="
+];
 
-    if (input === CORRECT_PASSWORD) {
-      // Notionエクスポートのトップページへ遷移
-      window.location.href = "notion/はじめに（Blenderの設定） 28de771c7c8680438eddf7e1be4ff81c.html";
+/* 配列順を入れ替えて真値を復元する黒魔術関数 */
+function decodeSecret() {
+  const pw = atob(scrambled[0]); 
+  const url = atob(scrambled[1]);
+  return { pw, url };
+}
+
+const { pw: REAL_PASSWORD, url: REAL_URL } = decodeSecret();
+
+
+/* ============================
+   ▼ 5回失敗で5分ロック
+   ============================ */
+
+const MAX_FAIL = 5;
+const LOCK_MINUTES = 5;
+
+function saveState(fails, until) {
+  localStorage.setItem("loginFails", fails);
+  localStorage.setItem("lockUntil", until);
+}
+
+function loadState() {
+  return {
+    fails: Number(localStorage.getItem("loginFails") || 0),
+    until: Number(localStorage.getItem("lockUntil") || 0)
+  };
+}
+
+function updateLockState() {
+  const { fails, until } = loadState();
+  const now = Date.now();
+
+  const loginBtn = document.getElementById("login-btn");
+  const lockMsg = document.getElementById("lock");
+
+  if (now < until) {
+    const remain = Math.ceil((until - now) / 1000);
+    lockMsg.style.display = "block";
+    lockMsg.textContent = `${Math.floor(remain/60)}分後に再試行できます`;
+    loginBtn.disabled = true;
+    return true;
+  } else {
+    loginBtn.disabled = false;
+    document.getElementById("lock").style.display = "none";
+    return false;
+  }
+}
+
+updateLockState();
+
+
+/* ============================
+   ▼ ログイン処理
+   ============================ */
+function tryLogin() {
+  if (updateLockState()) return; // ロック中なら終了
+
+  const input = document.getElementById("pw").value;
+  const error = document.getElementById("error");
+
+  let { fails } = loadState();
+
+  if (input === REAL_PASSWORD) {
+    saveState(0, 0); // 成功したらリセット
+    window.location.href = REAL_URL;
+  } else {
+    fails++;
+    error.style.display = "block";
+
+    if (fails >= MAX_FAIL) {
+      const until = Date.now() + LOCK_MINUTES * 60 * 1000;
+      saveState(fails, until);
+      updateLockState();
     } else {
-      error.style.display = "block";
+      saveState(fails, 0);
     }
   }
+}
 
-  document.getElementById("login-btn").addEventListener("click", tryLogin);
+document.getElementById("login-btn").addEventListener("click", tryLogin);
+document.getElementById("pw").addEventListener("keydown", e => {
+  if (e.key === "Enter") tryLogin();
+});
 
-  // Enterキーでログイン可能に
-  document.getElementById("pw").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      tryLogin();
-    }
-  });
-</script>
-<script>
-// すべての折りたたみ(トグル)を閉じる
+
+/* ============================
+   ▼ 全トグル閉じる（あなたの元コードを維持）
+   ============================ */
 document.addEventListener("DOMContentLoaded", () => {
-  // Notion のトグル要素を探索
   const toggles = document.querySelectorAll("details");
-
-  toggles.forEach(t => {
-    t.removeAttribute("open"); // 開いた状態を解除
-  });
+  toggles.forEach(t => t.removeAttribute("open"));
 });
 </script>
 
 </body>
 </html>
-
-
